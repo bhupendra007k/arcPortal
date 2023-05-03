@@ -1,23 +1,25 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Map from "@arcgis/core/Map";
 import MapView from "@arcgis/core/views/MapView";
 import SceneView from "@arcgis/core/views/SceneView";
+import Point from "@arcgis/core/geometry/Point.js";
 
-
-interface MapProps {
+interface IMapProps {
   mapType: "2D" | "3D" | string;
-  basemap:string;
-  layer: any[]
+  basemap: string;
+  layer: any[];
+  handleStop?:any
 }
-// 
-const MapComponent: React.FC<MapProps> = ({
+
+const MapComponent: React.FC<IMapProps> = ({
   mapType,
   basemap,
-  layer,
-}: MapProps) => {
+  layer,handleStop
+}: IMapProps) => {
+  let view;
   const mapDiv = useRef<HTMLDivElement>(null);
 
- 
+  const [point,setPoint]=useState<any>(2)
 
   useEffect(() => {
     const map = new Map({
@@ -27,14 +29,14 @@ const MapComponent: React.FC<MapProps> = ({
 
     if (mapDiv.current) {
       if (mapType === "2D") {
-        const view = new MapView({
+        view = new MapView({
           map,
           container: mapDiv.current,
           center: [-118.244, 34.052],
           zoom: 12,
         });
       } else {
-        const view = new SceneView({
+        view = new SceneView({
           map,
           container: mapDiv.current,
           camera: {
@@ -47,6 +49,13 @@ const MapComponent: React.FC<MapProps> = ({
           },
         });
       }
+      view.on("click", (e) => {
+        
+        // var x=JSON.stringify(e.mapPoint)
+        // var y=JSON.parse(x)
+        handleStop(e.mapPoint)
+        // handleStop(point)
+      });
     }
   }, [mapType]);
 
